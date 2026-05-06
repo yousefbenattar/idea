@@ -11,7 +11,7 @@
 
 <body class="bg-background text-foreground">
     <x-layout.nav></x-layout.nav>
-    <main class="max-w-7x1 mx-auto items-center ">
+    <main class="max-w-7x1 mx-auto items-center mb-10 pb-5 px-6">
         {{ $slot }}
     </main>
 @session('success')
