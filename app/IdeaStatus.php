@@ -7,10 +7,13 @@ enum IdeaStatus: string
     case PENDING = 'pending';
     case IN_PROGRESS = 'in_progress';
     case COMPLETED = 'completed';
-
-    public function label ():string
+    public static function values(): array
     {
-        return match ($this){
+        return array_column(self::cases(), 'value');
+    }
+    public function label(): string
+    {
+        return match ($this) {
             self::PENDING => 'Pending',
             self::IN_PROGRESS => 'In_Progress',
             self::COMPLETED => 'Completed',

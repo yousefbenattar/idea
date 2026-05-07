@@ -10,7 +10,7 @@
 
 
             <div class="flex gap-4">
-                <a href="{{ route('idea.edit', $idea) }}" class="btn btn-outlined">
+                <a href="{{ route('idea.update', $idea) }}" class="btn btn-outlined">
                     <x-icons.external />
                     Edit Idea
                 </a>

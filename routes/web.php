@@ -5,14 +5,22 @@ declare(strict_types=1);
 use App\Http\Controllers\IdeaController;
 use App\Http\Controllers\RegisterUserController;
 use App\Http\Controllers\SessionController;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
-// Route::view('/', 'welcome')->middleware('auth');
+
+
+// Route::view('/', 'welcome')->middleware('guest')->name("welcome");
+
 Route::get('/', [IdeaController::class, "index"])->middleware('auth')->name("idea.index");
+
+
+
 Route::get('/ideas/{idea}', [IdeaController::class, "show"])->middleware('auth')->name('ideas.show');
 Route::delete('/ideas/{idea}', [IdeaController::class, "destroy"])->middleware('auth')->name("idea.destroy");
-Route::get('/ideas/{idea}/edit', [IdeaController::class, "edit"])->middleware('auth')->name("idea.edit");
-Route::put('/ideas/{idea}/edit', [IdeaController::class, "update"])->middleware('auth')->name("idea.update");
+
+Route::post('/ideas/{idea}/edit', [IdeaController::class, "update"])->middleware('auth')->name("idea.update");
+Route::post('/idea/store', [IdeaController::class, "store"])->middleware('auth')->name('idea.store');
 
 Route::get('/register', [RegisterUserController::class, "create"])->middleware('guest');
 Route::post('/register', [RegisterUserController::class, "store"])->middleware('guest');
