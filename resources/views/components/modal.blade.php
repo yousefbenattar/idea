@@ -1,6 +1,6 @@
 @props(['name', 'title'])
 
-<div x-data="{show:true , name : @js($name) }"
+<div x-data="{show:false , name : @js($name) }"
     @open-modal.window="if($event.detail === name) show = true;"
     @close-modal = "show =false"
     x-show="show"

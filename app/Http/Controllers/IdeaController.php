@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\StoreIdeaRequest;
 use App\Models\Idea;
 use App\IdeaStatus;
+use App\Actions\CreateIdea;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
@@ -40,25 +42,16 @@ class IdeaController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreIdeaRequest $request)
     {
-        $validated = $request->validate([
-            'title' => ['required', 'string', 'max:255'],
-            'description' => ['nullable', 'string'],
-            'status' => ['required', Rule::enum(IdeaStatus::class)],
-            'links' =>  ['nullable','array'],
-            'links.*' =>  ['url','max:255']
-        ]);
-         Idea::create(
-            [
-                'user_id' => Auth::user()->id,
-                'title' => $validated['title'],
-                'description' => $validated['description'],
-                'status' => $validated['status'],
-            ]
+        //(new CreateIdea)->handle();
 
-        )->with("success , Idea created !");
-        return redirect("/");
+        $idea = Auth::user()->ideas()->create($request->safe()->except('steps','image'));
+        $idea->steps()->createMany(collect($request->steps)->map(fn ($step)=>['description'=>$step])
+        );
+        $image_path = $request->image->store('ideas','public');
+        $idea->update(['image_path' => $image_path]);
+        return redirect("/")->with("success , Idea created !");
     }
 
     /**
@@ -66,6 +59,7 @@ class IdeaController extends Controller
      */
     public function show(Idea $idea)
     {
+        
         return view('idea.show', ['idea' => $idea]);
 
     }

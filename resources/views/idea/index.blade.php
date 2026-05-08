@@ -19,10 +19,16 @@
             </a>
         @endforeach
     </div>
-    <div class="mt-10 text-muted-foreground">
+    <div class="mt-4 text-muted-foreground">
         <div class="grid md:grid-cols-2 gap-6">
             @forelse($ideas as $idea)
+          
                 <x-card href="/ideas/{{$idea->id}}">
+                      @if ($idea->image_path)
+                <div class="mb-4 -mx-4 -mt-4 rounded-t-lg overflow-hidden">
+                    <img src="{{ asset('storage/' . $idea->image_path)}}" alt="" class="w-full h-48 object-cover">
+                </div>
+            @endif
                     <h3 class="text-foreground text-lg">{{ $idea->title }}</h3>
                     <div class="mt-1">
                         <x-status-label status="{{ $idea->status }}">
@@ -40,9 +46,16 @@
             @endforelse
         </div>
     </div>
+
+
     <!--- create modal ---->
     <x-modal title="New Idea" name="create-idea">
-        <form x-data="{status : 'pending'  ,newLink : '', links : [] }" action="/idea/store" method="Post">
+        <form x-data="{
+        status : 'pending',
+        newLink : '',
+        links : [],
+        newStep : '',
+        steps : [] }" action="/idea/store" method="Post" enctype="multipart/form-data">
             @csrf
             <div class="space-y-6">
                 <x-form.field label="Title" name="title" placeholder="Enter an idea for your title" autofocus
@@ -64,14 +77,43 @@
                 </div>
                 <x-form.field label="Description" name="description" type="textarea"
                     placeholder="Describe your idea..." />
+                <div class="space-w-2">
+                    <label for="image" class="label  pb-2">Featuerd Image</label>
+                    <input type="file" name="image" accepte="image/*">
+                    <x-form.error name="image" />
+                </div>
             </div>
-            <div>
+            <div class="mt-4">
+                <fieldset class="space-y-3">
+                    <legend class="label">Actionable Steps</legend>
+                    <template x-for="(step,index) in steps" class="flex flex-col">
+                        <div class="flex gap-x-2 items-center">
+                            <input type="input" name="steps[]" x-model="step" class="input flex-1">
+                            <button aria-label="remove Link" type="button" class="form-muted-icon "
+                                @click="steps.splice(index)">
+                                <x-icons.trash></x-icons.trash>
+                            </button>
+                        </div>
+                    </template>
+
+                    <div class="flex gap-x-2 items-center">
+                        <input x-model="newStep" id="new-Step" data-test="new-Step" placeholder="What needs to be done"
+                            class="input flex-1 input flex-1" spellcheck="false" />
+                        <button aria-label="add a new link" :disabled="newStep.trim().length === 0" type="button"
+                            class="form-muted-icon" @click="steps.push(newStep.trim()); newStep = '';">
+                            <x-icons.add></x-icons.add>
+                        </button>
+                    </div>
+                    <!-- <pre x-text="JSON.stringify(links)"> </pre>-->
+                </fieldset>
+            </div>
+            <div class="mt-4">
                 <fieldset class="space-y-3">
                     <legend class="label">Links</legend>
                     <template x-for="(link,index) in links" class="flex flex-col">
                         <div class="flex gap-x-2 items-center">
-                            <input type="input" name="links[]" x-model="link">
-                            <button aria-label="remove Likn" type="button" class="form-muted-icon"
+                            <input type="input" name="links[]" x-model="link" class="input flex-1">
+                            <button aria-label="remove Likn" type="button" class="form-muted-icon "
                                 @click="links.splice(index)">
                                 <x-icons.trash></x-icons.trash>
                             </button>
@@ -79,19 +121,14 @@
                     </template>
                     <div class="flex gap-x-2 items-center">
                         <input x-model="newLink" type="url" id="newLink" placeholder="http://example.com"
-                            autocomplete="url" class="input flex-1"   spellcheck="false" />
+                            autocomplete="url" class="input flex-1" spellcheck="false" />
                         <button aria-label="add a new link" :disabled="newLink.trim().length === 0" type="button"
                             class="form-muted-icon" @click="links.push(newLink.trim()); newLink = '';">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
-                                class="bi bi-plus-lg" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2" />
-                            </svg>
+                            <x-icons.add></x-icons.add>
                         </button>
                     </div>
-                    <!-- <pre x-text="JSON.stringify(links)"> -->
+                    <!-- <pre x-text="JSON.stringify(links)"> </pre>-->
 
-                    </pre>
                 </fieldset>
             </div>
             <div class="flex justify-end gap-x-5 mt-4 pr-4">
@@ -101,8 +138,8 @@
                 </button>
                 <button type="submit" class="btn">Create</button>
             </div>
-
-
         </form>
     </x-modal>
+
+
 </x-layout>
